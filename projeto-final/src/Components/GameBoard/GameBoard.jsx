@@ -4,35 +4,62 @@ import "./GameBoard.css";
 const ROWS = 6;
 const COLS = 7;
 
-const Cell = ({ value, isSpecial }) => {
-    let cellClass = "cell";
-    if (value === "R") cellClass += " red";
-    if (value === "Y") cellClass += " yellow";
-    if (isSpecial) cellClass += " special";
 
-    return <div className={cellClass}></div>;
+
+
+
+
+const createEmptyBoard = () => {
+    const board = [];
+    for (let row = 0; row < ROWS; row++) {
+        const rowData = [];
+        for (let col = 0; col < COLS; col++) {
+            rowData.push({row,
+                col,
+                player: null,
+                isSpecial: false,
+            });
+        }
+        board.push(rowData);
+    }
+    return board;
 };
 
-const GameBoard = ({ board, specialCells, onColumnClick }) => {
+function GameBoard(props) {
+    const board = createEmptyBoard();
+
+    const handleClick = (row, col) => {
+        console.log(`Clicou na célula ${row},${col}`);
+    };
+
+
     return (
-        <div className="board">
-            {[...Array(COLS)].map((_, colIndex) => (
-                <div
-                    key={colIndex}
-                    className="column"
-                    onClick={() => onColumnClick(colIndex)}
-                >
-                    {[...Array(ROWS)].map((_, rowIndex) => {
-                        const value = board[rowIndex][colIndex];
-                        const isSpecial = specialCells.some(
-                            (cell) => cell.row === rowIndex && cell.col === colIndex
+        <div className="game-container">
+            <div className="top-bar">
+                <button className="mode-button" onClick={() => props.setGameMode(null)}>
+                    Alterar modo de Jogo
+                </button>
+            </div>
+
+            <div className="board">
+                {board.map((row) =>
+                    row.map((cell) => {
+                        const id = `${cell.row}-${cell.col}`; // identificador único
+
+                        return (
+                            <div
+                                key={id}
+                                id={id}
+                                className={`cell ${cell.isSpecial ? 'special' : ''}`}
+                                onClick={() => handleClick(cell.row, cell.col)}
+                            />
                         );
-                        return <Cell key={rowIndex} value={value} isSpecial={isSpecial} />;
-                    })}
-                </div>
-            ))}
+                    })
+                )}
+            </div>
         </div>
     );
-};
+}
 
-export default GameBoard;
+
+    export default GameBoard;

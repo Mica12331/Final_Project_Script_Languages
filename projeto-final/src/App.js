@@ -1,55 +1,90 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import GameBoard from "./Components/GameBoard/GameBoard";
+import "./App.css";
 
-const ROWS = 6;
-const COLS = 7;
 
-const createEmptyBoard = () => {
-    return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-};
-
-const fixedSpecialCells = [
-    { row: 1, col: 3 },
-    { row: 2, col: 5 },
-    { row: 3, col: 1 },
-    { row: 4, col: 0 },
-    { row: 0, col: 6 },
-];
 
 function App() {
-    const [board, setBoard] = useState(createEmptyBoard());
-    const [currentPlayer, setCurrentPlayer] = useState("R");
+    // Estado para o modo de jogo (1 vs 1 ou contra o computador)
+    const [gameMode, setGameMode] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [players, setPlayers] = useState([]);
 
-    const handleColumnClick = (col) => {
-        for (let row = ROWS - 1; row >= 0; row--) {
-            if (board[row][col] === null) {
-                const newBoard = board.map((r) => [...r]);
-                newBoard[row][col] = currentPlayer;
-                setBoard(newBoard);
-                setCurrentPlayer(currentPlayer === "R" ? "Y" : "R");
-                break;
-            }
-        }
+    const startGame = (mode) => {
+        setGameMode(mode);
     };
 
+    function handleStartGame() {
+        setGameStarted(true);
+
+    }
+
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <h1 className="text-2xl font-bold mb-4">4 em Linha</h1>
-            <div className="flex flex-col items-center bg-white p-6 rounded-xl shadow-lg">
-                <GameBoard
-                    board={board}
-                    specialCells={fixedSpecialCells}
-                    onColumnClick={handleColumnClick}
-                />
-                <p className="text-lg font-medium mt-4">
-                    Jogador atual:{" "}
-                    <span className={currentPlayer === "R" ? "text-red-500" : "text-yellow-500"}>
-            {currentPlayer === "R" ? "Vermelho" : "Amarelo"}
-          </span>
-                </p>
-            </div>
+        <div className="app-container">
+            <h1>4 em Linha</h1>
+
+            {/* Tela de seleção de modo */}
+            {!gameMode && (
+                <div className="game-mode-selection">
+                    <h2>Escolha o Modo de Jogo</h2>
+                    <button onClick={() => setGameMode("1vs1")}>1 vs 1</button>
+                    <button onClick={() => setGameMode("vsCPU")}>1 vs CPU</button>
+                    <h3>Projeto desenvolvido por:</h3>
+                    <ul>
+                        <li>Micael Alexandre Dias dos Santos - 2024118797</li>
+                        <li>Guilherme Cordeiro Rico - 2024142592</li>
+                        <li>Ruben Miguel Badea Rebelo - 2024129092</li>
+                    </ul>
+                </div>
+            )}
+
+            {/* Tela para inserir nomes */}
+            {gameMode && !gameStarted && (
+                <div className="game-mode-selection">
+                    <h2>Insere os nomes</h2>
+                    <input
+                        type="text"
+                        placeholder="Jogador 1"
+                        value={players.player1}
+                        onChange={(e) =>
+                            setPlayers({...players, player1: e.target.value})
+                        }
+                    />
+                    {gameMode === "1vs1" && (
+                        <input
+                            type="text"
+                            placeholder="Jogador 2"
+                            value={players.player2}
+                            onChange={(e) =>
+                                setPlayers({...players, player2: e.target.value})
+                            }
+                        />
+                    )}
+                    <button onClick={handleStartGame}>Começar Jogo</button>
+                </div>
+            )}
+
+            {/* Tela do jogo */}
+            {gameStarted && (
+                <>
+                    <div className="status-bar">
+                        <div className="status-item">
+                            Modo: {gameMode === "1vs1" ? "1 vs 1" : "1 vs CPU"}
+                        </div>
+                        <div className="status-item">
+                            Jogadores: {players.player1}
+                            {gameMode === "1vs1" && ` vs ${players.player2}`}
+                        </div>
+                    </div>
+
+                    <div className="board-wrapper">
+                        <GameBoard gameMode={gameMode} setGameMode={setGameMode}/>
+                    </div>
+                </>
+            )}
         </div>
     );
 }
 
-export default App;
+    export default App;
