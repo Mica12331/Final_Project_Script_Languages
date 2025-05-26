@@ -6,8 +6,8 @@ import "./App.css";
 
 function App() {
     // Estado para o modo de jogo (1 vs 1 ou contra o computador)
-    const [gameMode, setGameMode] = useState(null);
-    const [gameStarted, setGameStarted] = useState(false);
+    const [gameMode, setGameMode] = useState("vsCPU");
+    const [gameStarted, setGameStarted] = useState(true);
     const [players, setPlayers] = useState([]);
 
     const startGame = (mode) => {
@@ -79,7 +79,7 @@ function App() {
                     </div>
 
                     <div className="board-wrapper">
-                        <GameBoard gameMode={gameMode} setGameMode={setGameMode}/>
+                        <GameBoard gameMode={gameMode} setGameMode={setGameMode} players={players} />
                     </div>
                 </>
             )}

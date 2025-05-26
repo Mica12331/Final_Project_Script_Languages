@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import "./GameBoard.css";
 
 const ROWS = 6;
@@ -26,11 +26,31 @@ const createEmptyBoard = () => {
 };
 
 function GameBoard(props) {
-    const board = createEmptyBoard();
+    const [board, setBoard] = useState(createEmptyBoard());
+    const [currentPlayer, setCurrentPlayer] = useState("player1");
+
+
+
+
 
     const handleClick = (row, col) => {
         console.log(`Clicou na célula ${row},${col}`);
     };
+
+
+    function colocaPeca(elemento, player){
+        elemento.classList.add(player);
+        trocaJogador(player)
+    }
+
+    function trocaJogador(currentPlayer) {
+        if (currentPlayer === "player1") {
+            setCurrentPlayer("player2");
+        }else {
+            setCurrentPlayer("player1");
+        }
+    }
+
 
 
     return (
@@ -51,7 +71,11 @@ function GameBoard(props) {
                                 key={id}
                                 id={id}
                                 className={`cell ${cell.isSpecial ? 'special' : ''}`}
-                                onClick={() => handleClick(cell.row, cell.col)}
+                                onClick={(e) => {
+                                    handleClick(cell.row, cell.col);
+                                    colocaPeca(e.target, currentPlayer);
+                                    trocaJogador(currentPlayer);
+                                }}
                             />
                         );
                     })
