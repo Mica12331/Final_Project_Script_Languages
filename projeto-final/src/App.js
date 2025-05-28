@@ -7,7 +7,7 @@ import "./App.css";
 function App() {
     // Estado para o modo de jogo (1 vs 1 ou contra o computador)
     const [gameMode, setGameMode] = useState("vsCPU");
-    const [gameStarted, setGameStarted] = useState(true);
+    const [gameStarted, setGameStarted] = useState(false);
     const [players, setPlayers] = useState([]);
 
     const startGame = (mode) => {
@@ -15,6 +15,9 @@ function App() {
     };
 
     function handleStartGame() {
+        if (gameMode === "vsCPU") {
+            setPlayers(prev => ({...prev, player2: "CPU"}));
+        }
         setGameStarted(true);
 
     }
@@ -48,7 +51,7 @@ function App() {
                         placeholder="Jogador 1"
                         value={players.player1}
                         onChange={(e) =>
-                            setPlayers({...players, player1: e.target.value})
+                            setPlayers(prev => ({ ...prev, player1: e.target.value }))
                         }
                     />
                     {gameMode === "1vs1" && (
@@ -57,7 +60,7 @@ function App() {
                             placeholder="Jogador 2"
                             value={players.player2}
                             onChange={(e) =>
-                                setPlayers({...players, player2: e.target.value})
+                                setPlayers(prev => ({ ...prev, player2: e.target.value }))
                             }
                         />
                     )}
@@ -74,12 +77,13 @@ function App() {
                         </div>
                         <div className="status-item">
                             Jogadores: {players.player1}
-                            {gameMode === "1vs1" && ` vs ${players.player2}`}
+                            {gameMode === "1vs1" ? ` vs ${players.player2}` : ` vs CPU`}
                         </div>
                     </div>
 
                     <div className="board-wrapper">
-                        <GameBoard gameMode={gameMode} setGameMode={setGameMode} players={players} />
+
+                        <GameBoard gameMode={gameMode} setGameMode={setGameMode} gameStarted={gameStarted} setGameStarted={setGameStarted}  players={players} />
                     </div>
                 </>
             )}
