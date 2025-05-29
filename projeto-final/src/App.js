@@ -1,14 +1,13 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import GameBoard from "./Components/GameBoard/GameBoard";
+import ControlPanel from "./Components/ControlPanel/ControlPanel";
 import "./App.css";
 
-
-
 function App() {
-    // Estado para o modo de jogo (1 vs 1 ou contra o computador)
-    const [gameMode, setGameMode] = useState("vsCPU");
+    const [gameMode, setGameMode] = useState("");
     const [gameStarted, setGameStarted] = useState(false);
-    const [players, setPlayers] = useState([]);
+    const [players, setPlayers] = useState({ player1: "", player2: "" });
+    const [tempoRestante, setTempoRestante] = useState(10); // cria estado para passar ao ControlPanel
 
     const startGame = (mode) => {
         setGameMode(mode);
@@ -16,18 +15,15 @@ function App() {
 
     function handleStartGame() {
         if (gameMode === "vsCPU") {
-            setPlayers(prev => ({...prev, player2: "CPU"}));
+            setPlayers(prev => ({ ...prev, player2: "CPU" }));
         }
         setGameStarted(true);
-
     }
-
 
     return (
         <div className="app-container">
             <h1>4 em Linha</h1>
 
-            {/* Tela de seleção de modo */}
             {!gameMode && (
                 <div className="game-mode-selection">
                     <h2>Escolha o Modo de Jogo</h2>
@@ -42,7 +38,6 @@ function App() {
                 </div>
             )}
 
-            {/* Tela para inserir nomes */}
             {gameMode && !gameStarted && (
                 <div className="game-mode-selection">
                     <h2>Insere os nomes</h2>
@@ -68,22 +63,26 @@ function App() {
                 </div>
             )}
 
-            {/* Tela do jogo */}
             {gameStarted && (
                 <>
-                    <div className="status-bar">
-                        <div className="status-item">
-                            Modo: {gameMode === "1vs1" ? "1 vs 1" : "1 vs CPU"}
-                        </div>
-                        <div className="status-item">
-                            Jogadores: {players.player1}
-                            {gameMode === "1vs1" ? ` vs ${players.player2}` : ` vs CPU`}
-                        </div>
-                    </div>
+                    {/* Passa os estados que o ControlPanel precisa */}
+                    <ControlPanel
+                        gameMode={gameMode}
+                        players={players}
+                        tempoRestante={tempoRestante}
+                        setGameMode={setGameMode}
+                        setGameStarted={setGameStarted}
+                    />
 
                     <div className="board-wrapper">
-
-                        <GameBoard gameMode={gameMode} setGameMode={setGameMode} gameStarted={gameStarted} setGameStarted={setGameStarted}  players={players} />
+                        <GameBoard
+                            gameMode={gameMode}
+                            setGameMode={setGameMode}
+                            gameStarted={gameStarted}
+                            setGameStarted={setGameStarted}
+                            players={players}
+                            setTempoRestante={setTempoRestante}  // precisa passar essa prop para atualizar o tempo
+                        />
                     </div>
                 </>
             )}
@@ -91,4 +90,4 @@ function App() {
     );
 }
 
-    export default App;
+export default App;
