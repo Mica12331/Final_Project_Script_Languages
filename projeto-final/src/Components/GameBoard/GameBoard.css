@@ -92,4 +92,75 @@
 }
 
 
+/* linha das setas acima do tabuleiro */
+.arrow-row {
+    display: grid;
+    grid-template-columns: repeat(7, 60px); /* adapta conforme o tamanho das células do tabuleiro */
+    gap: 4px; /* mesmo gap do tabuleiro */
+    padding: 0 20px; /* alinha com o tabuleiro, ajusta se necessário */
+    margin: 0 auto 6px;
+    height: 24px;
+    text-align: center;
+}
+
+/* célula de seta */
+.arrow-cell {
+    font-size: 22px;
+    color: #ffcc00; /* ou outra cor visível */
+    pointer-events: none; /* seta não interfere com hover do tabuleiro */
+    line-height: 22px;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.arrow-cell:empty {
+    opacity: 0;
+}
+
+.arrow-cell.player1 {
+    color: red;
+}
+
+.arrow-cell.player2 {
+    color: yellow;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+}
+
+.modal-content button {
+    background-color: #004080;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.modal-content button:hover {
+    background-color: #0066cc;
+}
+
 

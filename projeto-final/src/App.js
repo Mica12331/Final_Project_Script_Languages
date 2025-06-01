@@ -7,7 +7,15 @@ function App() {
     const [gameMode, setGameMode] = useState("");
     const [gameStarted, setGameStarted] = useState(false);
     const [players, setPlayers] = useState({ player1: "", player2: "" });
-    const [tempoRestante, setTempoRestante] = useState(10); // cria estado para passar ao ControlPanel
+    const [tempoRestante, setTempoRestante] = useState(10);
+    const [currentPlayer, setCurrentPlayer] = useState("");
+
+
+    function definePrimeiroJogador() {
+        const primeiros = ["player1", "player2"];
+        const escolhido = primeiros[Math.floor(Math.random() * primeiros.length)];
+        setCurrentPlayer(escolhido);
+    }
 
     const startGame = (mode) => {
         setGameMode(mode);
@@ -18,6 +26,7 @@ function App() {
             setPlayers(prev => ({ ...prev, player2: "CPU" }));
         }
         setGameStarted(true);
+        definePrimeiroJogador()
     }
 
     return (
@@ -33,18 +42,24 @@ function App() {
                     <ul>
                         <li>Micael Alexandre Dias dos Santos - 2024118797</li>
                         <li>Guilherme Cordeiro Rico - 2024142592</li>
-                        <li>Ruben Miguel Badea Rebelo - 2024129092</li>
                     </ul>
                 </div>
             )}
 
             {gameMode && !gameStarted && (
-                <div className="game-mode-selection">
+                <form
+                    className="game-mode-selection"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleStartGame();
+                    }}
+                >
                     <h2>Insere os nomes</h2>
                     <input
                         type="text"
                         placeholder="Jogador 1"
                         value={players.player1}
+                        required
                         onChange={(e) =>
                             setPlayers(prev => ({ ...prev, player1: e.target.value }))
                         }
@@ -54,24 +69,31 @@ function App() {
                             type="text"
                             placeholder="Jogador 2"
                             value={players.player2}
+                            required
                             onChange={(e) =>
                                 setPlayers(prev => ({ ...prev, player2: e.target.value }))
                             }
                         />
                     )}
-                    <button onClick={handleStartGame}>Começar Jogo</button>
-                </div>
+                    <button type="submit">Começar Jogo</button>
+                </form>
             )}
+
 
             {gameStarted && (
                 <>
-                    {/* Passa os estados que o ControlPanel precisa */}
+                    {}
                     <ControlPanel
                         gameMode={gameMode}
                         players={players}
+                        setPlayers={setPlayers}
                         tempoRestante={tempoRestante}
+                        setTempoRestante={setTempoRestante}
                         setGameMode={setGameMode}
                         setGameStarted={setGameStarted}
+                        currentPlayer={currentPlayer}
+                        setCurrentPlayer={setCurrentPlayer}
+                        gameStarted={gameStarted}
                     />
 
                     <div className="board-wrapper">
@@ -81,7 +103,11 @@ function App() {
                             gameStarted={gameStarted}
                             setGameStarted={setGameStarted}
                             players={players}
-                            setTempoRestante={setTempoRestante}  // precisa passar essa prop para atualizar o tempo
+                            setPlayers={setPlayers}
+                            setTempoRestante={setTempoRestante}
+                            currentPlayer={currentPlayer}
+                            setCurrentPlayer={setCurrentPlayer}
+                            tempoRestante={tempoRestante}
                         />
                     </div>
                 </>

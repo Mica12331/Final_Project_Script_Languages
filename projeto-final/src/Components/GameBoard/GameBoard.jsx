@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./GameBoard.css";
 import { winningPositions } from "../../Constants/Index";
-import ControlPanel from "../ControlPanel/ControlPanel"; // import do novo componente
 
 const ROWS = 6;
 const COLS = 7;
-const TEMPO_LIMITE = 10;
+
 
 function GameBoard(props) {
+
+
     const createEmptyBoard = () => {
         const board = [];
         const specialCells = new Set();
@@ -37,17 +38,16 @@ function GameBoard(props) {
     };
 
     const [board, setBoard] = useState(createEmptyBoard);
-    const [currentPlayer, setCurrentPlayer] = useState("player1");
     const [pecasplayer1, setPecasplayer1] = useState([]);
     const [pecasplayer2, setPecasplayer2] = useState([]);
-    const [tempoRestante, setTempoRestante] = useState(TEMPO_LIMITE);
+    const [hoverCol, setHoverCol] = useState(null);
+    const [vencedor, setVencedor] = useState(null);
 
     function checkVitory(pecasDoJogador, jogadorAtual) {
         for (const padrao of winningPositions) {
             const ganhou = padrao.every(pos => pecasDoJogador.includes(pos));
             if (ganhou) {
-                alert(`${jogadorAtual} venceu!`);
-                props.setGameStarted(false);
+                setVencedor(jogadorAtual);
                 return true;
             }
         }
@@ -74,9 +74,9 @@ function GameBoard(props) {
                         setBoard(newBoard);
 
                         if (!checkVitory(novasPecas, jogadorAtual)) {
-                            if (!isSpecialCell) setCurrentPlayer("player2");
+                            if (!isSpecialCell) props.setCurrentPlayer("player2");
                         } else {
-                            setCurrentPlayer(null);
+                            props.setCurrentPlayer(null);
                         }
                     } else if (jogadorAtual === "player2") {
                         const novasPecas = [...pecasplayer2, id];
@@ -85,9 +85,9 @@ function GameBoard(props) {
                         setBoard(newBoard);
 
                         if (!checkVitory(novasPecas, jogadorAtual)) {
-                            if (!isSpecialCell) setCurrentPlayer("player1");
+                            if (!isSpecialCell) props.setCurrentPlayer("player1");
                         } else {
-                            setCurrentPlayer(null);
+                            props.setCurrentPlayer(null);
                         }
                     }
 
@@ -118,11 +118,11 @@ function GameBoard(props) {
         }
 
         if (!id) {
-            setCurrentPlayer("player1");
+            props.setCurrentPlayer("player1");
             return;
         }
 
-        setCurrentPlayer(null); // bloqueia repetição
+        props.setCurrentPlayer(null); // bloqueia repetição
 
         setTimeout(() => {
             newBoard[id.split("-")[0]][id.split("-")[1]].player = "player2";
@@ -134,55 +134,45 @@ function GameBoard(props) {
             if (!checkVitory(novasPecas, "player2")) {
                 if (isSpecialCell) {
                     setTimeout(() => {
-                        setCurrentPlayer("player2");
+                        props.setCurrentPlayer("player2");
                     }, 300);
                 } else {
-                    setCurrentPlayer("player1");
+                    props.setCurrentPlayer("player1");
                 }
             } else {
-                setCurrentPlayer(null);
+                props.setCurrentPlayer(null);
             }
         }, 500);
     }
 
     useEffect(() => {
-        if (props.players.player2 === "CPU" && currentPlayer === "player2" && props.gameStarted) {
+        if (props.players.player2 === "CPU" && props.currentPlayer === "player2" && props.gameStarted) {
             const timer = setTimeout(() => {
                 jogarCPU();
             }, 500);
             return () => clearTimeout(timer);
         }
-    }, [currentPlayer, board, props.gameStarted]);
+    }, [props.currentPlayer, board, props.gameStarted]);
 
-    useEffect(() => {
-        if (!props.gameStarted || !currentPlayer) return;
 
-        // Se o jogador atual for CPU, não liga o temporizador (já é automático)
-        const isCPU = props.players[currentPlayer] === "CPU";
-        if (isCPU) return;
-
-        setTempoRestante(TEMPO_LIMITE);
-
-        const intervalo = setInterval(() => {
-            setTempoRestante(prev => {
-                if (prev === 1) {
-                    clearInterval(intervalo);
-                    alert("Tempo esgotado! Passa a vez.");
-                    if (currentPlayer === "player1") {
-                        setCurrentPlayer("player2");
-                    } else if (currentPlayer === "player2") {
-                        setCurrentPlayer("player1");
-                    }
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(intervalo);
-    }, [currentPlayer, props.gameStarted, props.players]);
 
     return (
         <div className="game-container">
+            <div
+                className="arrow-row"
+                onMouseLeave={() => setHoverCol(null)}
+            >
+                {[...Array(COLS)].map((_, c) => (
+                    <div
+                        key={`arrow-${c}`}
+                        className={`arrow-cell ${hoverCol === c ? props.currentPlayer : ""}`}
+                    >
+                        {hoverCol === c ? "▼" : ""}
+                    </div>
+
+                ))}
+            </div>
+
             <div className="board">
                 {board.map(row =>
                     row.map(cell => {
@@ -192,18 +182,19 @@ function GameBoard(props) {
                                 key={id}
                                 id={id}
                                 className={`cell ${cell.player || ""} ${cell.isSpecial ? "special" : ""}`}
+                                onMouseEnter={() => setHoverCol(cell.col)}  /* aparecer a seta em cima */
                                 onClick={e => {
                                     if (!props.gameStarted) return;
 
-                                    // Se modo 1vsCPU, só player1 pode jogar clicando
+                                    // modo 1vsCPU
                                     if (props.players.player2 === "CPU") {
-                                        if (currentPlayer === "player1") {
-                                            processaJogada(cell.row, cell.col, e.target, currentPlayer);
+                                        if (props.currentPlayer === "player1") {
+                                            processaJogada(cell.row, cell.col, e.target, props.currentPlayer);
                                         }
                                     } else {
-                                        // Modo 1vs1: ambos podem jogar
-                                        if (currentPlayer === "player1" || currentPlayer === "player2") {
-                                            processaJogada(cell.row, cell.col, e.target, currentPlayer);
+                                        // modo 1vs1
+                                        if (props.currentPlayer === "player1" || props.currentPlayer === "player2") {
+                                            processaJogada(cell.row, cell.col, e.target, props.currentPlayer);
                                         }
                                     }
                                 }}
@@ -212,6 +203,37 @@ function GameBoard(props) {
                     })
                 )}
             </div>
+            {vencedor && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>{props.players[vencedor]} venceu!</h2>
+                        <button
+                            onClick={() => {
+                                setVencedor(null);
+                                props.setGameStarted(false);
+                            }}
+                        >
+                            Fechar
+                        </button>
+                        <button
+                            onClick={() => {
+                                setBoard(createEmptyBoard());
+                                setPecasplayer1([]);
+                                setPecasplayer2([]);
+                                setVencedor(null);
+                                props.setCurrentPlayer(null);
+                                props.setGameStarted(false);
+                                props.setGameMode(null);
+                                props.setPlayers({ player1: "", player2: "" });
+                            }}
+                        >
+                            Jogar novamente
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
         </div>
     );
 }
